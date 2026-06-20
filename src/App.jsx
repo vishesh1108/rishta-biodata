@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 import {
   ArrowDown,
   ArrowLeft,
@@ -6,6 +8,8 @@ import {
   ArrowUp,
   Check,
   Eye,
+  FileImage,
+  FileText,
   ImagePlus,
   Languages,
   Plus,
@@ -25,6 +29,8 @@ const templates = [
     communityTags: ["universal"],
     tone: "floral",
     headerCompatibility: "standard",
+    headerColor: "#b41414",
+    headerShift: "0px",
   },
   {
     id: "bg2",
@@ -36,6 +42,8 @@ const templates = [
     communityTags: ["universal"],
     tone: "classic",
     headerCompatibility: "standard",
+    headerColor: "#b41414",
+    headerShift: "0px",
   },
   {
     id: "bg3",
@@ -47,61 +55,73 @@ const templates = [
     communityTags: ["universal"],
     tone: "royal",
     headerCompatibility: "standard",
+    headerColor: "#b41414",
+    headerShift: "0px",
   },
   {
     id: "peacock-emerald",
     name: { en: "Peacock Emerald Signature", hi: "पीकॉक एमरल्ड सिग्नेचर" },
-    image: "/assets/template-peacock-emerald-signature.png",
+    image: "/assets/template-peacock-emerald-signature-clean.png",
     accent: "#00745a",
     ratio: "1024 / 1536",
     layout: "layout-peacock",
     communityTags: ["hindu", "universal"],
     tone: "royal",
     headerCompatibility: "standard",
+    headerColor: "#00745a",
+    headerShift: "6px",
   },
   {
     id: "muslim-emerald",
     name: { en: "Muslim Emerald Nikah", hi: "मुस्लिम एमरल्ड निकाह" },
-    image: "/assets/template-muslim-emerald-nikah.png",
+    image: "/assets/template-muslim-emerald-nikah-clean.png",
     accent: "#006246",
     ratio: "1024 / 1536",
     layout: "layout-arch",
     communityTags: ["muslim"],
     tone: "classic",
     headerCompatibility: "standard",
+    headerColor: "#b88a2b",
+    headerShift: "18px",
   },
   {
     id: "green-leaf-modern",
     name: { en: "Green Leaf Modern", hi: "ग्रीन लीफ मॉडर्न" },
-    image: "/assets/template-green-leaf-modern.png",
+    image: "/assets/template-green-leaf-modern-clean.png",
     accent: "#4d735b",
     ratio: "1024 / 1536",
     layout: "layout-leaf",
     communityTags: ["universal"],
     tone: "minimal",
     headerCompatibility: "standard",
+    headerColor: "#4d735b",
+    headerShift: "10px",
   },
   {
     id: "sapphire-ik-onkar",
     name: { en: "Sapphire Ik Onkar Grace", hi: "सैफायर इक ओंकार ग्रेस" },
-    image: "/assets/template-sapphire-ik-onkar-grace.png",
+    image: "/assets/template-sapphire-ik-onkar-grace-clean.png",
     accent: "#0b4e85",
     ratio: "1024 / 1536",
     layout: "layout-sapphire",
     communityTags: ["sikh", "universal"],
     tone: "classic",
     headerCompatibility: "standard",
+    headerColor: "#0b4e85",
+    headerShift: "8px",
   },
   {
     id: "minimal-lotus-gold",
     name: { en: "Minimal Lotus Gold", hi: "मिनिमल लोटस गोल्ड" },
-    image: "/assets/template-minimal-lotus-gold.png",
+    image: "/assets/template-minimal-lotus-gold-clean.png",
     accent: "#c08d34",
     ratio: "1024 / 1536",
     layout: "layout-lotus",
     communityTags: ["jain", "universal"],
     tone: "floral",
     headerCompatibility: "standard",
+    headerColor: "#b3762c",
+    headerShift: "12px",
   },
 ];
 
@@ -129,7 +149,10 @@ const copy = {
     selected: "Selected",
     comparisonTitle: "Compare your biodata in all designs",
     comparisonIntro: "Your details and photo are placed on each matching template so you can choose with clarity.",
-    exportSoon: "Image and PDF download will be added after v1.",
+    exportReady: "Download your biodata as PNG or PDF.",
+    downloadPng: "Download PNG",
+    downloadPdf: "Download PDF",
+    preparing: "Preparing...",
     details: "Biodata Details",
     photo: "Photo",
     noPhoto: "Photo",
@@ -168,7 +191,10 @@ const copy = {
     selected: "चुना हुआ",
     comparisonTitle: "सभी डिजाइन में अपना बायोडाटा देखें",
     comparisonIntro: "आपकी जानकारी और फोटो मिलते-जुलते टेम्पलेट पर लगाई जाएगी ताकि चुनाव आसान हो।",
-    exportSoon: "इमेज और PDF डाउनलोड v1 के बाद जोड़ा जाएगा।",
+    exportReady: "अपना बायोडाटा PNG या PDF में डाउनलोड करें।",
+    downloadPng: "PNG डाउनलोड करें",
+    downloadPdf: "PDF डाउनलोड करें",
+    preparing: "तैयार हो रहा है...",
     details: "बायोडाटा विवरण",
     photo: "फोटो",
     noPhoto: "फोटो",
@@ -882,6 +908,54 @@ function FinalPreview({
   setPhotoScale,
   onBack,
 }) {
+  const previewRef = useRef(null);
+  const [exporting, setExporting] = useState("");
+  const fileBase = `${template.name.en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "biodata"}`;
+
+  async function capturePreview() {
+    if (!previewRef.current) return null;
+    await document.fonts?.ready;
+    return html2canvas(previewRef.current, {
+      backgroundColor: "#ffffff",
+      scale: 3,
+      useCORS: true,
+      logging: false,
+    });
+  }
+
+  async function downloadPng() {
+    setExporting("png");
+    try {
+      const canvas = await capturePreview();
+      if (!canvas) return;
+      const link = document.createElement("a");
+      link.download = `${fileBase}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } finally {
+      setExporting("");
+    }
+  }
+
+  async function downloadPdf() {
+    setExporting("pdf");
+    try {
+      const canvas = await capturePreview();
+      if (!canvas) return;
+      const image = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: canvas.width >= canvas.height ? "landscape" : "portrait",
+        unit: "px",
+        format: [canvas.width, canvas.height],
+        compress: true,
+      });
+      pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(`${fileBase}.pdf`);
+    } finally {
+      setExporting("");
+    }
+  }
+
   return (
     <section className="final-shell">
       <div className="final-toolbar">
@@ -890,11 +964,11 @@ function FinalPreview({
         </button>
         <div>
           <h1>{t.finalTitle}</h1>
-          <p>{template.name[language]} · {t.exportSoon}</p>
+          <p>{template.name[language]} · {t.exportReady}</p>
         </div>
       </div>
       <div className="final-workspace">
-        <div className="large-preview-wrap">
+        <div className="large-preview-wrap" ref={previewRef}>
           <BiodataPreview
             template={template}
             language={language}
@@ -909,6 +983,16 @@ function FinalPreview({
           <div className="control-title">
             <SlidersHorizontal size={18} />
             <span>{language === "hi" ? "समायोजन" : "Adjustments"}</span>
+          </div>
+          <div className="download-actions">
+            <button className="download-button" type="button" onClick={downloadPng} disabled={Boolean(exporting)}>
+              <FileImage size={17} />
+              {exporting === "png" ? t.preparing : t.downloadPng}
+            </button>
+            <button className="download-button" type="button" onClick={downloadPdf} disabled={Boolean(exporting)}>
+              <FileText size={17} />
+              {exporting === "pdf" ? t.preparing : t.downloadPdf}
+            </button>
           </div>
           <label>
             <span>{t.textSize}</span>
@@ -975,7 +1059,16 @@ function BiodataPreview({
   return (
     <div className={`biodata-frame ${template.layout} ${density} ${compact ? "compact-preview" : ""}`} style={{ aspectRatio: template.ratio }}>
       <img className="biodata-bg" src={template.image} alt="" />
-      <div className="biodata-overlay" style={{ "--accent": template.accent, "--scale": safeFont, "--photo-scale": safePhotoScale }}>
+      <div
+        className="biodata-overlay"
+        style={{
+          "--accent": template.accent,
+          "--header-color": template.headerColor || "#b41414",
+          "--header-shift": template.headerShift || "0px",
+          "--scale": safeFont,
+          "--photo-scale": safePhotoScale,
+        }}
+      >
         <div className={`biodata-header ${hasInvocation ? "" : "no-invocation"}`}>
           {hasInvocation && <div className="biodata-topline">{invocation}</div>}
           <h2>{title}</h2>

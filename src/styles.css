@@ -658,6 +658,36 @@ p {
   font-weight: 800;
 }
 
+.download-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.download-button {
+  min-height: 44px;
+  border: 1px solid rgba(0, 108, 81, 0.16);
+  border-radius: 8px;
+  background: rgba(0, 108, 81, 0.08);
+  color: var(--emerald-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-weight: 800;
+  transition: transform 180ms ease, background 180ms ease, border 180ms ease;
+}
+
+.download-button:hover {
+  transform: translateY(-1px);
+  background: rgba(0, 108, 81, 0.12);
+  border-color: rgba(0, 108, 81, 0.28);
+}
+
+.download-button:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
 .control-panel label {
   display: grid;
   gap: 10px;
@@ -716,11 +746,12 @@ p {
 .biodata-header {
   display: grid;
   justify-items: center;
+  padding-top: var(--header-shift);
   margin-bottom: var(--rule-gap);
 }
 
 .biodata-header.no-invocation {
-  padding-top: calc(var(--topline-size) + var(--topline-gap));
+  padding-top: calc(var(--header-shift) + var(--topline-size) + var(--topline-gap));
 }
 
 .layout-one .biodata-overlay {
@@ -736,23 +767,23 @@ p {
 }
 
 .layout-arch .biodata-overlay {
-  inset: 10.8% 8.6% 8.8%;
+  inset: 9.4% 8.4% 8.8%;
 }
 
 .layout-peacock .biodata-overlay {
-  inset: 6.9% 7.3% 12.4%;
+  inset: 7.4% 7.4% 12%;
 }
 
 .layout-leaf .biodata-overlay {
-  inset: 7.9% 7.7% 10.2%;
+  inset: 7.6% 7.8% 10%;
 }
 
 .layout-sapphire .biodata-overlay {
-  inset: 7.9% 7.8% 9.6%;
+  inset: 7.5% 7.8% 9.4%;
 }
 
 .layout-lotus .biodata-overlay {
-  inset: 8% 7.8% 10.6%;
+  inset: 7.8% 7.8% 10.4%;
 }
 
 .layout-peacock .personal-layout,
@@ -760,7 +791,21 @@ p {
 .layout-sapphire .personal-layout,
 .layout-lotus .personal-layout,
 .layout-arch .personal-layout {
-  grid-template-columns: minmax(0, 1fr) minmax(120px, 28%);
+  grid-template-columns: minmax(0, 1fr) minmax(136px, 32%);
+}
+
+.layout-peacock .photo-box {
+  width: min(100%, calc(184px * var(--photo-scale)));
+}
+
+.layout-leaf .photo-box,
+.layout-lotus .photo-box {
+  width: min(100%, calc(178px * var(--photo-scale)));
+}
+
+.layout-sapphire .photo-box,
+.layout-arch .photo-box {
+  width: min(100%, calc(182px * var(--photo-scale)));
 }
 
 .layout-peacock .photo-box,
@@ -768,26 +813,11 @@ p {
 .layout-sapphire .photo-box,
 .layout-lotus .photo-box,
 .layout-arch .photo-box {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-
-.layout-peacock .photo-box {
-  width: min(100%, calc(166px * var(--photo-scale)));
-  transform: translate(-9%, -5%);
-}
-
-.layout-leaf .photo-box,
-.layout-lotus .photo-box {
-  width: min(100%, calc(164px * var(--photo-scale)));
-  transform: translate(-6%, -2%);
-}
-
-.layout-sapphire .photo-box,
-.layout-arch .photo-box {
-  width: min(100%, calc(168px * var(--photo-scale)));
-  transform: translate(-7%, -3%);
+  border-color: color-mix(in srgb, var(--accent) 82%, var(--gold));
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow:
+    inset 0 0 0 calc(2px * var(--scale)) rgba(255, 255, 255, 0.72),
+    0 calc(4px * var(--scale)) calc(12px * var(--scale)) rgba(67, 39, 3, 0.1);
 }
 
 .layout-peacock .biodata-header,
@@ -800,7 +830,7 @@ p {
 
 .biodata-topline {
   justify-self: center;
-  color: #d11818;
+  color: var(--header-color);
   font-family: "Noto Serif Devanagari", "Gloock", serif;
   font-size: var(--topline-size);
   font-weight: 800;
