@@ -736,23 +736,23 @@ p {
 }
 
 .layout-arch .biodata-overlay {
-  inset: 9.8% 9% 8.8%;
+  inset: 10.8% 8.6% 8.8%;
 }
 
 .layout-peacock .biodata-overlay {
-  inset: 6.1% 7.9% 12.8%;
+  inset: 6.9% 7.3% 12.4%;
 }
 
 .layout-leaf .biodata-overlay {
-  inset: 7.1% 8.4% 10.4%;
+  inset: 7.9% 7.7% 10.2%;
 }
 
 .layout-sapphire .biodata-overlay {
-  inset: 7.1% 8.4% 9.6%;
+  inset: 7.9% 7.8% 9.6%;
 }
 
 .layout-lotus .biodata-overlay {
-  inset: 7.2% 8.4% 10.8%;
+  inset: 8% 7.8% 10.6%;
 }
 
 .layout-peacock .personal-layout,
@@ -760,7 +760,7 @@ p {
 .layout-sapphire .personal-layout,
 .layout-lotus .personal-layout,
 .layout-arch .personal-layout {
-  grid-template-columns: minmax(0, 1fr) minmax(134px, 31%);
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 28%);
 }
 
 .layout-peacock .photo-box,
@@ -774,18 +774,28 @@ p {
 }
 
 .layout-peacock .photo-box {
-  width: min(100%, calc(184px * var(--photo-scale)));
-  transform: translate(0, -3%);
+  width: min(100%, calc(166px * var(--photo-scale)));
+  transform: translate(-9%, -5%);
 }
 
 .layout-leaf .photo-box,
 .layout-lotus .photo-box {
-  width: min(100%, calc(178px * var(--photo-scale)));
+  width: min(100%, calc(164px * var(--photo-scale)));
+  transform: translate(-6%, -2%);
 }
 
 .layout-sapphire .photo-box,
 .layout-arch .photo-box {
-  width: min(100%, calc(184px * var(--photo-scale)));
+  width: min(100%, calc(168px * var(--photo-scale)));
+  transform: translate(-7%, -3%);
+}
+
+.layout-peacock .biodata-header,
+.layout-leaf .biodata-header,
+.layout-sapphire .biodata-header,
+.layout-lotus .biodata-header,
+.layout-arch .biodata-header {
+  --header-scale: 0.92;
 }
 
 .biodata-topline {
@@ -888,8 +898,8 @@ p {
 
 .detail-line {
   display: grid;
-  grid-template-columns: minmax(118px, 0.38fr) calc(14px * var(--scale)) minmax(0, 0.62fr);
-  gap: calc(8px * var(--scale));
+  grid-template-columns: minmax(104px, 0.34fr) calc(13px * var(--scale)) minmax(0, 0.66fr);
+  gap: calc(7px * var(--scale));
   align-items: start;
   font-family: Georgia, "Noto Serif Devanagari", serif;
   font-size: var(--row-font);
@@ -901,7 +911,8 @@ p {
   color: var(--accent);
   font-weight: 800;
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .detail-line em {
@@ -913,11 +924,13 @@ p {
 
 .detail-line span {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .contact .detail-line {
-  grid-template-columns: minmax(118px, 0.26fr) calc(14px * var(--scale)) minmax(0, 0.74fr);
+  grid-template-columns: minmax(100px, 0.24fr) calc(13px * var(--scale)) minmax(0, 0.76fr);
 }
 
 .density-dense .biodata-overlay {
@@ -967,11 +980,11 @@ p {
 }
 
 .density-extra .detail-line {
-  grid-template-columns: minmax(108px, 0.36fr) calc(10px * var(--scale)) minmax(0, 0.64fr);
+  grid-template-columns: minmax(92px, 0.3fr) calc(10px * var(--scale)) minmax(0, 0.7fr);
 }
 
 .density-extra .contact .detail-line {
-  grid-template-columns: minmax(108px, 0.25fr) calc(10px * var(--scale)) minmax(0, 0.75fr);
+  grid-template-columns: minmax(88px, 0.22fr) calc(10px * var(--scale)) minmax(0, 0.78fr);
 }
 
 .compact-preview .biodata-overlay {
