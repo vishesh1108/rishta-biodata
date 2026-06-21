@@ -71,7 +71,7 @@ const templates = [
     accent: "#00745a",
     accentDark: "#004d3d",
     accentSoft: "#b9943e",
-    ratio: "1024 / 1536",
+    ratio: "1055 / 1491",
     layout: "layout-peacock",
     communityTags: ["hindu", "universal"],
     tone: "royal",
@@ -86,7 +86,7 @@ const templates = [
     accent: "#006246",
     accentDark: "#003f31",
     accentSoft: "#b88a2b",
-    ratio: "1024 / 1536",
+    ratio: "1055 / 1491",
     layout: "layout-arch",
     communityTags: ["muslim"],
     tone: "classic",
@@ -101,7 +101,7 @@ const templates = [
     accent: "#4d735b",
     accentDark: "#355540",
     accentSoft: "#b89445",
-    ratio: "1024 / 1536",
+    ratio: "1055 / 1491",
     layout: "layout-leaf",
     communityTags: ["universal"],
     tone: "minimal",
@@ -116,7 +116,7 @@ const templates = [
     accent: "#0b4e85",
     accentDark: "#083a65",
     accentSoft: "#c59636",
-    ratio: "1024 / 1536",
+    ratio: "1055 / 1491",
     layout: "layout-sapphire",
     communityTags: ["sikh", "universal"],
     tone: "classic",
@@ -131,7 +131,7 @@ const templates = [
     accent: "#c08d34",
     accentDark: "#8a5f1f",
     accentSoft: "#d6b068",
-    ratio: "1024 / 1536",
+    ratio: "1055 / 1491",
     layout: "layout-lotus",
     communityTags: ["jain", "universal"],
     tone: "floral",
@@ -939,14 +939,7 @@ function Comparison({ t, language, fields, photo, preferredTemplate, selectedCom
   );
 }
 
-const EXPORT_FRAME_WIDTH = 1240;
-const EXPORT_SCALE = 2;
-
-function parseAspectRatio(ratio) {
-  if (typeof ratio !== "string") return 1 / Math.sqrt(2);
-  const [width, height] = ratio.split("/").map((part) => Number(part.trim()));
-  return width > 0 && height > 0 ? width / height : 1 / Math.sqrt(2);
-}
+const EXPORT_SCALE = 3;
 
 async function waitForImages(container) {
   const images = Array.from(container.querySelectorAll("img"));
@@ -984,8 +977,10 @@ function FinalPreview({
     const frame = previewRef.current?.querySelector(".biodata-frame");
     if (!frame) return null;
     await document.fonts?.ready;
-    const aspectRatio = parseAspectRatio(template.ratio);
-    const exportHeight = Math.round(EXPORT_FRAME_WIDTH / aspectRatio);
+    const frameRect = frame.getBoundingClientRect();
+    const exportWidth = Math.round(frameRect.width);
+    const exportHeight = Math.round(frameRect.height);
+    if (!exportWidth || !exportHeight) return null;
     const host = document.createElement("div");
     const clone = frame.cloneNode(true);
 
@@ -993,7 +988,7 @@ function FinalPreview({
       position: "fixed",
       left: "-10000px",
       top: "0",
-      width: `${EXPORT_FRAME_WIDTH}px`,
+      width: `${exportWidth}px`,
       height: `${exportHeight}px`,
       overflow: "hidden",
       background: "#ffffff",
@@ -1002,9 +997,9 @@ function FinalPreview({
     });
 
     Object.assign(clone.style, {
-      width: `${EXPORT_FRAME_WIDTH}px`,
+      width: `${exportWidth}px`,
       height: `${exportHeight}px`,
-      aspectRatio: `${EXPORT_FRAME_WIDTH} / ${exportHeight}`,
+      aspectRatio: `${exportWidth} / ${exportHeight}`,
     });
 
     host.appendChild(clone);
@@ -1017,10 +1012,10 @@ function FinalPreview({
         scale: EXPORT_SCALE,
         useCORS: true,
         logging: false,
-        width: EXPORT_FRAME_WIDTH,
+        width: exportWidth,
         height: exportHeight,
-        windowWidth: EXPORT_FRAME_WIDTH,
-        windowHeight: exportHeight,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
       });
     } finally {
       host.remove();
