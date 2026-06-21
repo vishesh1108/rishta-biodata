@@ -955,6 +955,31 @@ async function waitForImages(container) {
   );
 }
 
+function normalizeExportHeadings(container, accentColor) {
+  container.querySelectorAll(".biodata-section h3").forEach((heading) => {
+    Object.assign(heading.style, {
+      background: accentColor,
+      backgroundColor: accentColor,
+      backgroundImage: "none",
+      opacity: "1",
+      filter: "none",
+      mixBlendMode: "normal",
+    });
+  });
+}
+
+function logHeadingExportColorCheck(liveFrame, exportFrame) {
+  if (import.meta.env.PROD) return;
+  const liveHeading = liveFrame.querySelector(".biodata-section h3");
+  const exportHeading = exportFrame.querySelector(".biodata-section h3");
+  if (!liveHeading || !exportHeading) return;
+
+  console.debug("[biodata-export] heading color check", {
+    live: getComputedStyle(liveHeading).backgroundColor,
+    export: getComputedStyle(exportHeading).backgroundColor,
+  });
+}
+
 function FinalPreview({
   t,
   language,
@@ -983,6 +1008,7 @@ function FinalPreview({
     if (!exportWidth || !exportHeight) return null;
     const host = document.createElement("div");
     const clone = frame.cloneNode(true);
+    const exportHeadingColor = template.accent || "#006c51";
 
     Object.assign(host.style, {
       position: "fixed",
@@ -1002,10 +1028,12 @@ function FinalPreview({
       aspectRatio: `${exportWidth} / ${exportHeight}`,
     });
 
+    normalizeExportHeadings(clone, exportHeadingColor);
     host.appendChild(clone);
     document.body.appendChild(host);
 
     try {
+      logHeadingExportColorCheck(frame, clone);
       await waitForImages(clone);
       return await html2canvas(clone, {
         backgroundColor: "#ffffff",
@@ -1016,6 +1044,9 @@ function FinalPreview({
         height: exportHeight,
         windowWidth: window.innerWidth,
         windowHeight: window.innerHeight,
+        onclone: (clonedDocument) => {
+          normalizeExportHeadings(clonedDocument, exportHeadingColor);
+        },
       });
     } finally {
       host.remove();
