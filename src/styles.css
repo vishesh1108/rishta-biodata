@@ -55,7 +55,7 @@ button:disabled {
 
 .landing {
   min-height: 100vh;
-  padding: 18px clamp(16px, 4vw, 54px) 28px;
+  padding: 14px clamp(16px, 4vw, 54px) 30px;
 }
 
 .topbar,
@@ -74,6 +74,11 @@ button:disabled {
   gap: 16px;
   max-width: 1180px;
   margin: 0 auto;
+}
+
+.landing-topbar {
+  justify-content: flex-end;
+  min-height: 42px;
 }
 
 .brand-mark {
@@ -109,24 +114,29 @@ button:disabled {
 
 .hero-band {
   max-width: 1180px;
-  min-height: calc(100vh - 104px);
+  min-height: calc(100vh - 226px);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(300px, 0.72fr);
-  gap: clamp(26px, 5vw, 66px);
+  grid-template-columns: minmax(0, 0.94fr) minmax(360px, 1.06fr);
+  gap: clamp(24px, 5vw, 62px);
   align-items: center;
 }
 
 .hero-copy {
-  padding: 16px 0 38px;
+  padding: 8px 0 32px;
+}
+
+.landing-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin: -18px auto 4px;
 }
 
 .hero-logo {
-  width: min(270px, 72vw);
-  max-height: 190px;
+  width: min(245px, 64vw);
+  max-height: 168px;
   object-fit: contain;
   display: block;
-  margin-left: -22px;
   filter: drop-shadow(0 16px 22px rgba(0, 80, 57, 0.12));
 }
 
@@ -136,7 +146,7 @@ p {
   margin: 0;
 }
 
-.hero-copy h1,
+.hero-hook,
 .page-header h1,
 .maker-heading h1,
 .final-toolbar h1 {
@@ -145,9 +155,63 @@ p {
   letter-spacing: 0;
 }
 
+.hero-hook {
+  display: grid;
+  gap: clamp(8px, 1.7vw, 15px);
+  color: var(--emerald-dark);
+}
+
+.hook-line {
+  display: block;
+}
+
+.hook-main {
+  font-family: "Outfit", "Noto Serif Devanagari", sans-serif;
+  font-size: clamp(38px, 7vw, 84px);
+  font-weight: 900;
+  line-height: 0.96;
+  text-transform: uppercase;
+}
+
+.hook-biodata {
+  color: #a40d5f;
+  display: inline-block;
+  font-family: "Gloock", "Noto Serif Devanagari", serif;
+  font-size: 1.16em;
+  font-weight: 400;
+  text-shadow: 0 10px 22px rgba(164, 13, 95, 0.18);
+}
+
+.hook-sub {
+  color: var(--ink);
+  font-family: "Outfit", "Noto Serif Devanagari", sans-serif;
+  font-size: clamp(27px, 4.2vw, 52px);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.hook-highlight {
+  color: var(--emerald);
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.12em;
+}
+
+.lang-hi .hero-hook {
+  font-family: "Noto Serif Devanagari", serif;
+}
+
+.lang-hi .hook-main,
+.lang-hi .hook-sub {
+  text-transform: none;
+}
+
+.lang-hi .hook-biodata {
+  font-size: 1.08em;
+}
+
 .hero-copy h1 {
-  font-size: clamp(58px, 11vw, 132px);
-  line-height: 0.88;
   color: var(--emerald-dark);
 }
 
@@ -162,7 +226,7 @@ p {
 .hero-actions {
   gap: 14px;
   flex-wrap: wrap;
-  margin-top: 34px;
+  margin-top: clamp(24px, 4vw, 38px);
 }
 
 .primary-action,
@@ -198,11 +262,45 @@ p {
   transform: translateY(-1px);
 }
 
-.hero-preview {
-  width: min(420px, 90vw);
+.hero-showcase {
+  position: relative;
+  width: min(620px, 100%);
+  min-height: clamp(370px, 50vw, 570px);
   justify-self: center;
-  transform: rotate(1.5deg);
-  filter: drop-shadow(0 30px 50px rgba(72, 37, 2, 0.2));
+}
+
+.showcase-card {
+  position: absolute;
+  width: min(250px, 42%);
+  border-radius: 8px;
+  overflow: hidden;
+  filter: drop-shadow(0 26px 40px rgba(72, 37, 2, 0.18));
+  transform-origin: center bottom;
+}
+
+.showcase-card .biodata-frame {
+  width: 100%;
+}
+
+.showcase-card-1 {
+  left: 0;
+  top: 9%;
+  transform: rotate(-7deg);
+  z-index: 1;
+}
+
+.showcase-card-2 {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%) scale(1.12);
+  z-index: 3;
+}
+
+.showcase-card-3 {
+  right: 0;
+  top: 12%;
+  transform: rotate(7deg);
+  z-index: 2;
 }
 
 .page-shell,
@@ -1088,12 +1186,17 @@ p {
 
   .hero-band {
     min-height: auto;
-    padding-top: 26px;
+    padding-top: 18px;
   }
 
-  .hero-preview {
-    width: min(330px, 88vw);
-    margin-bottom: 18px;
+  .hero-showcase {
+    width: min(560px, 92vw);
+    min-height: 430px;
+    margin: 0 auto 18px;
+  }
+
+  .showcase-card {
+    width: min(230px, 42%);
   }
 
   .template-grid {
@@ -1139,12 +1242,61 @@ p {
     text-overflow: ellipsis;
   }
 
+  .landing-topbar {
+    min-height: 38px;
+  }
+
+  .landing-logo-wrap {
+    margin-top: -12px;
+    margin-bottom: 2px;
+  }
+
   .hero-copy {
-    padding-bottom: 12px;
+    padding-bottom: 2px;
   }
 
   .hero-logo {
-    width: min(225px, 74vw);
+    width: min(205px, 72vw);
+  }
+
+  .hero-band {
+    gap: 18px;
+    padding-top: 8px;
+  }
+
+  .hook-main {
+    font-size: clamp(36px, 12vw, 58px);
+  }
+
+  .hook-sub {
+    font-size: clamp(25px, 8vw, 38px);
+  }
+
+  .hero-showcase {
+    width: min(390px, 96vw);
+    min-height: 300px;
+  }
+
+  .showcase-card {
+    width: 43%;
+    border-radius: 6px;
+  }
+
+  .showcase-card-1 {
+    left: 2%;
+    top: 13%;
+    transform: rotate(-7deg);
+  }
+
+  .showcase-card-2 {
+    top: 0;
+    transform: translateX(-50%) scale(1.06);
+  }
+
+  .showcase-card-3 {
+    right: 2%;
+    top: 15%;
+    transform: rotate(7deg);
   }
 
   .hero-actions,

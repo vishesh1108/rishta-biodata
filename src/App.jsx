@@ -162,6 +162,12 @@ const copy = {
     remove: "Remove",
     rishta: "Rishta",
     heroLead: "Make a beautiful marriage biodata in minutes with graceful templates, simple details, and a live preview.",
+    heroHookStart: "CREATE YOUR",
+    heroHookWord: "BIODATA",
+    heroHookLinePrefix: "in",
+    heroHookTime: "3 mins",
+    heroHookLineMiddle: "for",
+    heroHookFree: "free",
     selected: "Selected",
     comparisonTitle: "Compare your biodata in all designs",
     comparisonIntro: "Your details and photo are placed on each matching template so you can choose with clarity.",
@@ -205,6 +211,12 @@ const copy = {
     remove: "हटाएं",
     rishta: "रिश्ता",
     heroLead: "सुंदर टेम्पलेट, आसान फॉर्म और लाइव प्रीव्यू के साथ कुछ मिनटों में विवाह बायोडाटा बनाएं।",
+    heroHookStart: "अपना",
+    heroHookWord: "बायोडाटा",
+    heroHookLinePrefix: "",
+    heroHookTime: "3 मिनट",
+    heroHookLineMiddle: "में",
+    heroHookFree: "मुफ्त",
     selected: "चुना हुआ",
     comparisonTitle: "सभी डिजाइन में अपना बायोडाटा देखें",
     comparisonIntro: "आपकी जानकारी और फोटो मिलते-जुलते टेम्पलेट पर लगाई जाएगी ताकि चुनाव आसान हो।",
@@ -229,6 +241,10 @@ const copy = {
     langName: "English",
   },
 };
+
+const landingShowcaseTemplates = ["peacock-emerald", "bg3", "green-leaf-modern"]
+  .map((id) => templates.find((template) => template.id === id))
+  .filter(Boolean);
 
 const communities = [
   { id: "hindu", label: { en: "Hindu", hi: "हिंदू" }, hint: { en: "Ganesh, Om and Sanskrit options", hi: "गणेश, ॐ और संस्कृत विकल्प" } },
@@ -592,16 +608,26 @@ function LanguageButton({ t, language, setLanguage }) {
 function Landing({ t, language, setLanguage, onStart, onDesigns }) {
   return (
     <section className="landing">
-      <div className="topbar">
-        <img className="brand-mark" src="/assets/rishta-logo-transparent.png" alt="Rishta" />
+      <div className="topbar landing-topbar">
         <LanguageButton t={t} language={language} setLanguage={setLanguage} />
+      </div>
+
+      <div className="landing-logo-wrap">
+        <img className="hero-logo" src="/assets/rishta-logo-transparent.png" alt="Rishta logo" />
       </div>
 
       <div className="hero-band">
         <div className="hero-copy">
-          <img className="hero-logo" src="/assets/rishta-logo-transparent.png" alt="Rishta logo" />
-          <h1>{t.rishta}</h1>
-          <p>{t.heroLead}</p>
+          <h1 className="hero-hook">
+            <span className="hook-line hook-main">
+              {t.heroHookStart} <span className="hook-biodata">{t.heroHookWord}</span>
+            </span>
+            <span className="hook-line hook-sub">
+              {t.heroHookLinePrefix && <>{t.heroHookLinePrefix} </>}
+              <span className="hook-highlight">{t.heroHookTime}</span> {t.heroHookLineMiddle}{" "}
+              <span className="hook-highlight">{t.heroHookFree}</span>
+            </span>
+          </h1>
           <div className="hero-actions">
             <button className="primary-action" type="button" onClick={onStart}>
               <Sparkles size={18} />
@@ -613,14 +639,18 @@ function Landing({ t, language, setLanguage, onStart, onDesigns }) {
             </button>
           </div>
         </div>
-        <div className="hero-preview" aria-hidden="true">
-          <BiodataPreview
-            template={templates[2]}
-            language={language}
-            fields={sampleFields(language)}
-            photo=""
-            compact
-          />
+        <div className="hero-showcase" aria-hidden="true">
+          {landingShowcaseTemplates.map((template, index) => (
+            <div className={`showcase-card showcase-card-${index + 1}`} key={template.id}>
+              <BiodataPreview
+                template={template}
+                language={language}
+                fields={sampleFields(language)}
+                photo=""
+                compact
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>
