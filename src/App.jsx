@@ -243,9 +243,9 @@ const copy = {
 };
 
 const landingShowcaseImages = [
-  { src: "/assets/landing-showcase-peacock.png", alt: "Peacock emerald biodata preview" },
-  { src: "/assets/landing-showcase-royal-gold.png", alt: "Royal gold biodata preview" },
-  { src: "/assets/landing-showcase-green-leaf.png", alt: "Green leaf biodata preview" },
+  { src: "/assets/landing-preview-peacock-full.png", alt: "Peacock biodata preview" },
+  { src: "/assets/landing-preview-peacock-bride.jpeg", alt: "Bride biodata preview" },
+  { src: "/assets/landing-preview-leaf-groom.jpeg", alt: "Leaf biodata preview" },
 ];
 
 const communities = [
@@ -939,6 +939,29 @@ function Comparison({ t, language, fields, photo, preferredTemplate, selectedCom
   );
 }
 
+const EXPORT_FRAME_WIDTH = 1240;
+const EXPORT_SCALE = 2;
+
+function parseAspectRatio(ratio) {
+  if (typeof ratio !== "string") return 1 / Math.sqrt(2);
+  const [width, height] = ratio.split("/").map((part) => Number(part.trim()));
+  return width > 0 && height > 0 ? width / height : 1 / Math.sqrt(2);
+}
+
+async function waitForImages(container) {
+  const images = Array.from(container.querySelectorAll("img"));
+  await Promise.all(
+    images.map((image) => {
+      if (image.complete && image.naturalWidth) return Promise.resolve();
+      if (image.decode) return image.decode().catch(() => undefined);
+      return new Promise((resolve) => {
+        image.addEventListener("load", resolve, { once: true });
+        image.addEventListener("error", resolve, { once: true });
+      });
+    })
+  );
+}
+
 function FinalPreview({
   t,
   language,
@@ -958,14 +981,50 @@ function FinalPreview({
   const fileBase = `${template.name.en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "biodata"}`;
 
   async function capturePreview() {
-    if (!previewRef.current) return null;
+    const frame = previewRef.current?.querySelector(".biodata-frame");
+    if (!frame) return null;
     await document.fonts?.ready;
-    return html2canvas(previewRef.current, {
-      backgroundColor: "#ffffff",
-      scale: 3,
-      useCORS: true,
-      logging: false,
+    const aspectRatio = parseAspectRatio(template.ratio);
+    const exportHeight = Math.round(EXPORT_FRAME_WIDTH / aspectRatio);
+    const host = document.createElement("div");
+    const clone = frame.cloneNode(true);
+
+    Object.assign(host.style, {
+      position: "fixed",
+      left: "-10000px",
+      top: "0",
+      width: `${EXPORT_FRAME_WIDTH}px`,
+      height: `${exportHeight}px`,
+      overflow: "hidden",
+      background: "#ffffff",
+      pointerEvents: "none",
+      zIndex: "-1",
     });
+
+    Object.assign(clone.style, {
+      width: `${EXPORT_FRAME_WIDTH}px`,
+      height: `${exportHeight}px`,
+      aspectRatio: `${EXPORT_FRAME_WIDTH} / ${exportHeight}`,
+    });
+
+    host.appendChild(clone);
+    document.body.appendChild(host);
+
+    try {
+      await waitForImages(clone);
+      return await html2canvas(clone, {
+        backgroundColor: "#ffffff",
+        scale: EXPORT_SCALE,
+        useCORS: true,
+        logging: false,
+        width: EXPORT_FRAME_WIDTH,
+        height: exportHeight,
+        windowWidth: EXPORT_FRAME_WIDTH,
+        windowHeight: exportHeight,
+      });
+    } finally {
+      host.remove();
+    }
   }
 
   async function downloadPng() {
@@ -1037,17 +1096,6 @@ function FinalPreview({
             <SlidersHorizontal size={18} />
             <span>{language === "hi" ? "समायोजन" : "Adjustments"}</span>
           </div>
-          <div className="download-actions">
-            <button className="download-button" type="button" onClick={downloadPng} disabled={Boolean(exporting)}>
-              <FileImage size={17} />
-              {exporting === "png" ? t.preparing : t.downloadPng}
-            </button>
-            <button className="download-button" type="button" onClick={downloadPdf} disabled={Boolean(exporting)}>
-              <FileText size={17} />
-              {exporting === "pdf" ? t.preparing : t.downloadPdf}
-            </button>
-          </div>
-          {exportError && <p className="export-error">{exportError}</p>}
           <label>
             <span>{t.textSize}</span>
             <input
@@ -1070,6 +1118,17 @@ function FinalPreview({
               onChange={(event) => setPhotoScale(Number(event.target.value))}
             />
           </label>
+          <div className="download-actions">
+            <button className="download-button" type="button" onClick={downloadPng} disabled={Boolean(exporting)}>
+              <FileImage size={17} />
+              {exporting === "png" ? t.preparing : t.downloadPng}
+            </button>
+            <button className="download-button" type="button" onClick={downloadPdf} disabled={Boolean(exporting)}>
+              <FileText size={17} />
+              {exporting === "pdf" ? t.preparing : t.downloadPdf}
+            </button>
+            {exportError && <p className="export-error">{exportError}</p>}
+          </div>
         </aside>
       </div>
     </section>
