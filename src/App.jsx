@@ -24,6 +24,8 @@ const templates = [
     name: { en: "Classic Floral", hi: "क्लासिक फ्लोरल" },
     image: "/assets/biodatabg1.png",
     accent: "#a40d5f",
+    accentDark: "#7c0644",
+    accentSoft: "#b97894",
     ratio: "1054 / 1492",
     layout: "layout-one",
     communityTags: ["universal"],
@@ -37,6 +39,8 @@ const templates = [
     name: { en: "Festive Border", hi: "फेस्टिव बॉर्डर" },
     image: "/assets/biodatabg2.png",
     accent: "#d86800",
+    accentDark: "#9a4200",
+    accentSoft: "#d9a66e",
     ratio: "1054 / 1492",
     layout: "layout-two",
     communityTags: ["universal"],
@@ -50,6 +54,8 @@ const templates = [
     name: { en: "Royal Gold", hi: "रॉयल गोल्ड" },
     image: "/assets/biodatabg3.png",
     accent: "#b79355",
+    accentDark: "#815f31",
+    accentSoft: "#d0b27f",
     ratio: "1045 / 1505",
     layout: "layout-three",
     communityTags: ["universal"],
@@ -63,6 +69,8 @@ const templates = [
     name: { en: "Peacock Emerald Signature", hi: "पीकॉक एमरल्ड सिग्नेचर" },
     image: "/assets/template-peacock-emerald-signature-clean.png",
     accent: "#00745a",
+    accentDark: "#004d3d",
+    accentSoft: "#b9943e",
     ratio: "1024 / 1536",
     layout: "layout-peacock",
     communityTags: ["hindu", "universal"],
@@ -76,6 +84,8 @@ const templates = [
     name: { en: "Muslim Emerald Nikah", hi: "मुस्लिम एमरल्ड निकाह" },
     image: "/assets/template-muslim-emerald-nikah-clean.png",
     accent: "#006246",
+    accentDark: "#003f31",
+    accentSoft: "#b88a2b",
     ratio: "1024 / 1536",
     layout: "layout-arch",
     communityTags: ["muslim"],
@@ -89,6 +99,8 @@ const templates = [
     name: { en: "Green Leaf Modern", hi: "ग्रीन लीफ मॉडर्न" },
     image: "/assets/template-green-leaf-modern-clean.png",
     accent: "#4d735b",
+    accentDark: "#355540",
+    accentSoft: "#b89445",
     ratio: "1024 / 1536",
     layout: "layout-leaf",
     communityTags: ["universal"],
@@ -102,6 +114,8 @@ const templates = [
     name: { en: "Sapphire Ik Onkar Grace", hi: "सैफायर इक ओंकार ग्रेस" },
     image: "/assets/template-sapphire-ik-onkar-grace-clean.png",
     accent: "#0b4e85",
+    accentDark: "#083a65",
+    accentSoft: "#c59636",
     ratio: "1024 / 1536",
     layout: "layout-sapphire",
     communityTags: ["sikh", "universal"],
@@ -115,6 +129,8 @@ const templates = [
     name: { en: "Minimal Lotus Gold", hi: "मिनिमल लोटस गोल्ड" },
     image: "/assets/template-minimal-lotus-gold-clean.png",
     accent: "#c08d34",
+    accentDark: "#8a5f1f",
+    accentSoft: "#d6b068",
     ratio: "1024 / 1536",
     layout: "layout-lotus",
     communityTags: ["jain", "universal"],
@@ -153,6 +169,7 @@ const copy = {
     downloadPng: "Download PNG",
     downloadPdf: "Download PDF",
     preparing: "Preparing...",
+    exportError: "Download failed. Please try again.",
     details: "Biodata Details",
     photo: "Photo",
     noPhoto: "Photo",
@@ -195,6 +212,7 @@ const copy = {
     downloadPng: "PNG डाउनलोड करें",
     downloadPdf: "PDF डाउनलोड करें",
     preparing: "तैयार हो रहा है...",
+    exportError: "डाउनलोड नहीं हो पाया। कृपया फिर कोशिश करें।",
     details: "बायोडाटा विवरण",
     photo: "फोटो",
     noPhoto: "फोटो",
@@ -910,6 +928,7 @@ function FinalPreview({
 }) {
   const previewRef = useRef(null);
   const [exporting, setExporting] = useState("");
+  const [exportError, setExportError] = useState("");
   const fileBase = `${template.name.en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "biodata"}`;
 
   async function capturePreview() {
@@ -925,6 +944,7 @@ function FinalPreview({
 
   async function downloadPng() {
     setExporting("png");
+    setExportError("");
     try {
       const canvas = await capturePreview();
       if (!canvas) return;
@@ -932,6 +952,9 @@ function FinalPreview({
       link.download = `${fileBase}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
+    } catch (error) {
+      console.error(error);
+      setExportError(t.exportError);
     } finally {
       setExporting("");
     }
@@ -939,6 +962,7 @@ function FinalPreview({
 
   async function downloadPdf() {
     setExporting("pdf");
+    setExportError("");
     try {
       const canvas = await capturePreview();
       if (!canvas) return;
@@ -951,6 +975,9 @@ function FinalPreview({
       });
       pdf.addImage(image, "PNG", 0, 0, canvas.width, canvas.height);
       pdf.save(`${fileBase}.pdf`);
+    } catch (error) {
+      console.error(error);
+      setExportError(t.exportError);
     } finally {
       setExporting("");
     }
@@ -994,6 +1021,7 @@ function FinalPreview({
               {exporting === "pdf" ? t.preparing : t.downloadPdf}
             </button>
           </div>
+          {exportError && <p className="export-error">{exportError}</p>}
           <label>
             <span>{t.textSize}</span>
             <input
@@ -1063,6 +1091,8 @@ function BiodataPreview({
         className="biodata-overlay"
         style={{
           "--accent": template.accent,
+          "--accent-dark": template.accentDark || template.accent,
+          "--accent-soft": template.accentSoft || template.accent,
           "--header-color": template.headerColor || "#b41414",
           "--header-shift": template.headerShift || "0px",
           "--scale": safeFont,

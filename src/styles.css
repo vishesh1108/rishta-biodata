@@ -688,6 +688,13 @@ p {
   opacity: 0.68;
 }
 
+.export-error {
+  color: #9f1d1d;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .control-panel label {
   display: grid;
   gap: 10px;
@@ -813,7 +820,7 @@ p {
 .layout-sapphire .photo-box,
 .layout-lotus .photo-box,
 .layout-arch .photo-box {
-  border-color: color-mix(in srgb, var(--accent) 82%, var(--gold));
+  border-color: var(--accent-soft);
   background: rgba(255, 255, 255, 0.66);
   box-shadow:
     inset 0 0 0 calc(2px * var(--scale)) rgba(255, 255, 255, 0.72),
@@ -870,7 +877,7 @@ p {
   width: min(100%, var(--photo-max));
   aspect-ratio: 4 / 5;
   justify-self: end;
-  border: calc(3px * var(--scale)) solid color-mix(in srgb, var(--accent) 82%, white);
+  border: calc(3px * var(--scale)) solid var(--accent-soft);
   border-radius: calc(18px * var(--scale));
   background: rgba(255, 255, 255, 0.78);
   display: grid;
@@ -902,7 +909,7 @@ p {
   min-width: calc(240px * var(--scale));
   margin: 0 0 var(--heading-gap);
   padding: var(--heading-pad-y) var(--heading-pad-x);
-  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 80%, #360018));
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   border: calc(2px * var(--scale)) solid var(--gold);
   border-radius: calc(4px * var(--scale));
   color: #fffdf4;
