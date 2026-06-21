@@ -278,8 +278,10 @@ p {
   transform-origin: center bottom;
 }
 
-.showcase-card .biodata-frame {
+.showcase-card img {
+  display: block;
   width: 100%;
+  height: auto;
 }
 
 .showcase-card-1 {

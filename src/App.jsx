@@ -242,9 +242,11 @@ const copy = {
   },
 };
 
-const landingShowcaseTemplates = ["peacock-emerald", "bg3", "green-leaf-modern"]
-  .map((id) => templates.find((template) => template.id === id))
-  .filter(Boolean);
+const landingShowcaseImages = [
+  { src: "/assets/landing-showcase-peacock.png", alt: "Peacock emerald biodata preview" },
+  { src: "/assets/landing-showcase-royal-gold.png", alt: "Royal gold biodata preview" },
+  { src: "/assets/landing-showcase-green-leaf.png", alt: "Green leaf biodata preview" },
+];
 
 const communities = [
   { id: "hindu", label: { en: "Hindu", hi: "हिंदू" }, hint: { en: "Ganesh, Om and Sanskrit options", hi: "गणेश, ॐ और संस्कृत विकल्प" } },
@@ -640,15 +642,9 @@ function Landing({ t, language, setLanguage, onStart, onDesigns }) {
           </div>
         </div>
         <div className="hero-showcase" aria-hidden="true">
-          {landingShowcaseTemplates.map((template, index) => (
-            <div className={`showcase-card showcase-card-${index + 1}`} key={template.id}>
-              <BiodataPreview
-                template={template}
-                language={language}
-                fields={sampleFields(language)}
-                photo=""
-                compact
-              />
+          {landingShowcaseImages.map((image, index) => (
+            <div className={`showcase-card showcase-card-${index + 1}`} key={image.src}>
+              <img src={image.src} alt={image.alt} />
             </div>
           ))}
         </div>
