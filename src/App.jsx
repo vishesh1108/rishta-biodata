@@ -1,6 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
+import { useEffect, useState } from "react";
 import {
   ArrowDown,
   ArrowLeft,
@@ -17,6 +15,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react";
+import { renderBiodataCanvas } from "./canvasExport";
 
 const templates = [
   {
@@ -939,47 +938,6 @@ function Comparison({ t, language, fields, photo, preferredTemplate, selectedCom
   );
 }
 
-const EXPORT_SCALE = 3;
-
-async function waitForImages(container) {
-  const images = Array.from(container.querySelectorAll("img"));
-  await Promise.all(
-    images.map((image) => {
-      if (image.complete && image.naturalWidth) return Promise.resolve();
-      if (image.decode) return image.decode().catch(() => undefined);
-      return new Promise((resolve) => {
-        image.addEventListener("load", resolve, { once: true });
-        image.addEventListener("error", resolve, { once: true });
-      });
-    })
-  );
-}
-
-function normalizeExportHeadings(container, accentColor) {
-  container.querySelectorAll(".biodata-section h3").forEach((heading) => {
-    Object.assign(heading.style, {
-      background: accentColor,
-      backgroundColor: accentColor,
-      backgroundImage: "none",
-      opacity: "1",
-      filter: "none",
-      mixBlendMode: "normal",
-    });
-  });
-}
-
-function logHeadingExportColorCheck(liveFrame, exportFrame) {
-  if (import.meta.env.PROD) return;
-  const liveHeading = liveFrame.querySelector(".biodata-section h3");
-  const exportHeading = exportFrame.querySelector(".biodata-section h3");
-  if (!liveHeading || !exportHeading) return;
-
-  console.debug("[biodata-export] heading color check", {
-    live: getComputedStyle(liveHeading).backgroundColor,
-    export: getComputedStyle(exportHeading).backgroundColor,
-  });
-}
-
 function FinalPreview({
   t,
   language,
@@ -993,71 +951,27 @@ function FinalPreview({
   setPhotoScale,
   onBack,
 }) {
-  const previewRef = useRef(null);
   const [exporting, setExporting] = useState("");
   const [exportError, setExportError] = useState("");
   const fileBase = `${template.name.en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "biodata"}`;
 
-  async function capturePreview() {
-    const frame = previewRef.current?.querySelector(".biodata-frame");
-    if (!frame) return null;
-    await document.fonts?.ready;
-    const frameRect = frame.getBoundingClientRect();
-    const exportWidth = Math.round(frameRect.width);
-    const exportHeight = Math.round(frameRect.height);
-    if (!exportWidth || !exportHeight) return null;
-    const host = document.createElement("div");
-    const clone = frame.cloneNode(true);
-    const exportHeadingColor = template.accent || "#006c51";
-
-    Object.assign(host.style, {
-      position: "fixed",
-      left: "-10000px",
-      top: "0",
-      width: `${exportWidth}px`,
-      height: `${exportHeight}px`,
-      overflow: "hidden",
-      background: "#ffffff",
-      pointerEvents: "none",
-      zIndex: "-1",
+  async function createExportCanvas() {
+    return renderBiodataCanvas({
+      template,
+      language,
+      fields,
+      photo,
+      selectedHeader,
+      textScale,
+      photoScale,
     });
-
-    Object.assign(clone.style, {
-      width: `${exportWidth}px`,
-      height: `${exportHeight}px`,
-      aspectRatio: `${exportWidth} / ${exportHeight}`,
-    });
-
-    host.appendChild(clone);
-    document.body.appendChild(host);
-    normalizeExportHeadings(clone, exportHeadingColor);
-
-    try {
-      logHeadingExportColorCheck(frame, clone);
-      await waitForImages(clone);
-      return await html2canvas(clone, {
-        backgroundColor: "#ffffff",
-        scale: EXPORT_SCALE,
-        useCORS: true,
-        logging: false,
-        width: exportWidth,
-        height: exportHeight,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
-        onclone: (clonedDocument) => {
-          normalizeExportHeadings(clonedDocument, exportHeadingColor);
-        },
-      });
-    } finally {
-      host.remove();
-    }
   }
 
   async function downloadPng() {
     setExporting("png");
     setExportError("");
     try {
-      const canvas = await capturePreview();
+      const canvas = await createExportCanvas();
       if (!canvas) return;
       const link = document.createElement("a");
       link.download = `${fileBase}.png`;
@@ -1075,8 +989,9 @@ function FinalPreview({
     setExporting("pdf");
     setExportError("");
     try {
-      const canvas = await capturePreview();
+      const canvas = await createExportCanvas();
       if (!canvas) return;
+      const { jsPDF } = await import("jspdf");
       const image = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
         orientation: canvas.width >= canvas.height ? "landscape" : "portrait",
@@ -1106,7 +1021,7 @@ function FinalPreview({
         </div>
       </div>
       <div className="final-workspace">
-        <div className="large-preview-wrap" ref={previewRef}>
+        <div className="large-preview-wrap">
           <BiodataPreview
             template={template}
             language={language}
