@@ -175,6 +175,7 @@ const copy = {
     downloadPdf: "Download PDF",
     preparing: "Preparing...",
     exportError: "Download failed. Please try again.",
+    photoUnsupported: "This photo format is not supported. Please upload a JPG, PNG, or WebP image.",
     details: "Biodata Details",
     photo: "Photo",
     noPhoto: "Photo",
@@ -224,6 +225,7 @@ const copy = {
     downloadPdf: "PDF डाउनलोड करें",
     preparing: "तैयार हो रहा है...",
     exportError: "डाउनलोड नहीं हो पाया। कृपया फिर कोशिश करें।",
+    photoUnsupported: "यह फोटो फॉर्मेट सपोर्ट नहीं है। कृपया JPG, PNG या WebP फोटो अपलोड करें।",
     details: "बायोडाटा विवरण",
     photo: "फोटो",
     noPhoto: "फोटो",
@@ -297,6 +299,7 @@ const sections = [
       ["name", "Name", "नाम"],
       ["dob", "DOB", "जन्म तिथि"],
       ["age", "Age", "आयु"],
+      ["height", "Height", "कद"],
       ["caste", "Caste", "जाति"],
       ["rashi", "Rashi", "राशि"],
       ["gotra", "Gotra", "गोत्र"],
@@ -384,6 +387,47 @@ function getOrderedTemplates(selectedCommunity) {
   });
 }
 
+const supportedPhotoTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const supportedPhotoExtensions = /\.(jpe?g|png|webp)$/i;
+const MAX_NORMALIZED_PHOTO_DIMENSION = 1400;
+
+async function normalizePhotoFile(file) {
+  const hasSupportedType = supportedPhotoTypes.has(file.type);
+  const hasSupportedExtension = supportedPhotoExtensions.test(file.name || "");
+  if (!hasSupportedType && !hasSupportedExtension) {
+    throw new Error("Unsupported photo format");
+  }
+
+  const sourceUrl = URL.createObjectURL(file);
+  try {
+    const image = await loadBrowserImage(sourceUrl);
+    const longestSide = Math.max(image.naturalWidth, image.naturalHeight);
+    if (!longestSide) throw new Error("Invalid photo");
+    const ratio = Math.min(1, MAX_NORMALIZED_PHOTO_DIMENSION / longestSide);
+    const width = Math.max(1, Math.round(image.naturalWidth * ratio));
+    const height = Math.max(1, Math.round(image.naturalHeight * ratio));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+    return canvas.toDataURL("image/jpeg", 0.88);
+  } finally {
+    URL.revokeObjectURL(sourceUrl);
+  }
+}
+
+function loadBrowserImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Photo decode failed"));
+    image.src = src;
+  });
+}
+
 function App() {
   const [language, setLanguage] = useState("en");
   const [screen, setScreen] = useState("landing");
@@ -395,6 +439,7 @@ function App() {
   const [customHeader, setCustomHeader] = useState("");
   const [fields, setFields] = useState(createInitialFields);
   const [photo, setPhoto] = useState("");
+  const [photoError, setPhotoError] = useState("");
   const [textScale, setTextScale] = useState(1);
   const [photoScale, setPhotoScale] = useState(1);
   const t = copy[language];
@@ -443,12 +488,19 @@ function App() {
     );
   }
 
-  function handlePhoto(event) {
+  async function handlePhoto(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setPhoto(reader.result);
-    reader.readAsDataURL(file);
+    setPhotoError("");
+    try {
+      const normalizedPhoto = await normalizePhotoFile(file);
+      setPhoto(normalizedPhoto);
+    } catch (error) {
+      console.error(error);
+      setPhoto("");
+      setPhotoError(t.photoUnsupported);
+      event.target.value = "";
+    }
   }
 
   function startMaker(templateId = null) {
@@ -554,6 +606,7 @@ function App() {
           removeField={removeField}
           handlePhoto={handlePhoto}
           photo={photo}
+          photoError={photoError}
           onBack={goToPreviousStep}
           onNext={goToNextStep}
         />
@@ -796,6 +849,7 @@ function FormFlow({
   removeField,
   handlePhoto,
   photo,
+  photoError,
   onBack,
   onNext,
 }) {
@@ -848,7 +902,7 @@ function FormFlow({
                   )}
                   <input
                     value={field.value}
-                    placeholder={field.custom ? t.value : field.label[language]}
+                    placeholder={field.id === "height" ? "5'7\"" : field.custom ? t.value : field.label[language]}
                     onChange={(event) => updateField(field.id, { value: event.target.value })}
                   />
                 </div>
@@ -881,8 +935,9 @@ function FormFlow({
             <label className="photo-drop">
               {photo ? <img src={photo} alt={t.photo} /> : <ImagePlus size={42} />}
               <span>{t.photoUpload}</span>
-              <input type="file" accept="image/*" onChange={handlePhoto} />
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhoto} />
             </label>
+            {photoError && <p className="export-error photo-error">{photoError}</p>}
           </div>
         )}
 
@@ -1236,6 +1291,7 @@ function sampleFields(language) {
     ? [
         ["name", "personal", "नाम", "आर्या शर्मा"],
         ["dob", "personal", "जन्म तिथि", "12 मई 1998"],
+        ["height", "personal", "कद", "5'7\""],
         ["qualification", "personal", "योग्यता", "एम.बी.ए."],
         ["occupation", "personal", "व्यवसाय", "सॉफ्टवेयर इंजीनियर"],
         ["fatherName", "family", "पिता का नाम", "श्री राजेश शर्मा"],
@@ -1246,6 +1302,7 @@ function sampleFields(language) {
     : [
         ["name", "personal", "Name", "Aarya Sharma"],
         ["dob", "personal", "DOB", "12 May 1998"],
+        ["height", "personal", "Height", "5'7\""],
         ["qualification", "personal", "Qualification", "MBA"],
         ["occupation", "personal", "Occupation", "Software Engineer"],
         ["fatherName", "family", "Father's name", "Mr. Rajesh Sharma"],

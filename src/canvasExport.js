@@ -35,7 +35,7 @@ export async function renderBiodataCanvas({
   canvas.width = background.naturalWidth || background.width || 1055;
   canvas.height = background.naturalHeight || background.height || 1491;
   const ctx = canvas.getContext("2d");
-  const photoImage = photo ? await loadImage(photo).catch(() => null) : null;
+  const photoImage = photo ? await loadImage(photo) : null;
   const visible = fields.length ? fields : sampleFields(language);
   const grouped = groupFields(visible, language);
   const baseMetrics = getMetrics({ template, language, visible, grouped, textScale, photoScale, canvas });
@@ -506,6 +506,7 @@ function sampleFields(language) {
     ? [
         ["name", "personal", "नाम", "आर्या शर्मा"],
         ["dob", "personal", "जन्म तिथि", "12 मई 1998"],
+        ["height", "personal", "कद", "5'7\""],
         ["qualification", "personal", "योग्यता", "एम.बी.ए."],
         ["occupation", "personal", "व्यवसाय", "सॉफ्टवेयर इंजीनियर"],
         ["fatherName", "family", "पिता का नाम", "श्री राजेश शर्मा"],
@@ -516,6 +517,7 @@ function sampleFields(language) {
     : [
         ["name", "personal", "Name", "Aarya Sharma"],
         ["dob", "personal", "DOB", "12 May 1998"],
+        ["height", "personal", "Height", "5'7\""],
         ["qualification", "personal", "Qualification", "MBA"],
         ["occupation", "personal", "Occupation", "Software Engineer"],
         ["fatherName", "family", "Father's name", "Mr. Rajesh Sharma"],
