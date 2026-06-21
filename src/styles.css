@@ -1009,7 +1009,7 @@ p {
   min-width: calc(240px * var(--scale));
   margin: 0 0 var(--heading-gap);
   padding: var(--heading-pad-y) var(--heading-pad-x);
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  background: var(--accent);
   border: calc(2px * var(--scale)) solid var(--gold);
   border-radius: calc(4px * var(--scale));
   color: #fffdf4;
