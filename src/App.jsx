@@ -1028,9 +1028,9 @@ function FinalPreview({
       aspectRatio: `${exportWidth} / ${exportHeight}`,
     });
 
-    normalizeExportHeadings(clone, exportHeadingColor);
     host.appendChild(clone);
     document.body.appendChild(host);
+    normalizeExportHeadings(clone, exportHeadingColor);
 
     try {
       logHeadingExportColorCheck(frame, clone);
