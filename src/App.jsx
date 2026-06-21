@@ -1066,14 +1066,23 @@ function BiodataPreview({
     family: visible.filter((field) => field.section === "family"),
     contact: visible.filter((field) => field.section === "contact"),
   };
-  const longValueCount = visible.filter((field) => field.value.length > 28).length;
-  const densityScore = visible.length + longValueCount * 0.7 + Math.max(0, grouped.personal.length - 7) * 0.9;
-  const density = compact ? "density-compact" : densityScore > 18 ? "density-extra" : densityScore > 13 ? "density-dense" : "density-normal";
+  const valueLengths = visible.map((field) => field.value.trim().length);
+  const totalValueChars = valueLengths.reduce((sum, length) => sum + length, 0);
+  const longestValue = Math.max(0, ...valueLengths);
+  const longValueCount = valueLengths.filter((length) => length > 28).length;
+  const densityScore =
+    visible.length +
+    longValueCount * 1.1 +
+    totalValueChars / 85 +
+    Math.max(0, grouped.personal.length - 6) * 1.1 +
+    Math.max(0, longestValue - 42) / 18;
+  const density = compact ? "density-compact" : densityScore > 24 ? "density-extra" : densityScore > 15 ? "density-dense" : "density-normal";
   const baseFont = compact ? 0.92 : textScale;
-  const densityTextMultiplier = density === "density-extra" ? 0.9 : density === "density-dense" ? 0.96 : 1;
-  const densityPhotoMultiplier = density === "density-extra" ? 0.74 : density === "density-dense" ? 0.88 : 1;
-  const safeFont = Math.max(0.78, Math.min(baseFont * densityTextMultiplier, 1.14));
-  const safePhotoScale = Math.max(0.62, Math.min(photoScale * densityPhotoMultiplier, 1.18));
+  const densityTextMultiplier = density === "density-extra" ? 0.84 : density === "density-dense" ? 0.92 : 1;
+  const densityPhotoMultiplier = density === "density-extra" ? 0.88 : density === "density-dense" ? 0.95 : 1;
+  const maxFontByDensity = density === "density-extra" ? 0.92 : density === "density-dense" ? 1.02 : 1.14;
+  const safeFont = Math.max(0.72, Math.min(baseFont * densityTextMultiplier, maxFontByDensity));
+  const safePhotoScale = Math.max(0.68, Math.min(photoScale * densityPhotoMultiplier, 1.18));
   const fallbackHeader = {
     id: "fallback",
     value: language === "hi" ? "|| श्री गणेशाय नमः ||" : "|| Shri Ganeshaya Namah ||",
@@ -1155,7 +1164,7 @@ function DetailRows({ fields, language }) {
           <div className="detail-line" key={field.id}>
             <strong>{label}</strong>
             <em>:</em>
-            <span>{field.value}</span>
+            <span className={field.value.length > 32 ? "long-value" : ""}>{field.value}</span>
           </div>
         );
       })}

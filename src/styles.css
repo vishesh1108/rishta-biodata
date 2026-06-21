@@ -798,21 +798,21 @@ p {
 .layout-sapphire .personal-layout,
 .layout-lotus .personal-layout,
 .layout-arch .personal-layout {
-  grid-template-columns: minmax(0, 1fr) minmax(136px, 32%);
+  grid-template-columns: minmax(0, 1fr) calc(164px * var(--photo-scale));
 }
 
 .layout-peacock .photo-box {
-  width: min(100%, calc(184px * var(--photo-scale)));
+  width: 100%;
 }
 
 .layout-leaf .photo-box,
 .layout-lotus .photo-box {
-  width: min(100%, calc(178px * var(--photo-scale)));
+  width: 100%;
 }
 
 .layout-sapphire .photo-box,
 .layout-arch .photo-box {
-  width: min(100%, calc(182px * var(--photo-scale)));
+  width: 100%;
 }
 
 .layout-peacock .photo-box,
@@ -935,8 +935,8 @@ p {
 
 .detail-line {
   display: grid;
-  grid-template-columns: minmax(104px, 0.34fr) calc(13px * var(--scale)) minmax(0, 0.66fr);
-  gap: calc(7px * var(--scale));
+  grid-template-columns: minmax(82px, 0.28fr) calc(12px * var(--scale)) minmax(0, 0.72fr);
+  gap: calc(6px * var(--scale));
   align-items: start;
   font-family: Georgia, "Noto Serif Devanagari", serif;
   font-size: var(--row-font);
@@ -961,13 +961,22 @@ p {
 
 .detail-line span {
   min-width: 0;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   word-break: normal;
+  hyphens: manual;
+}
+
+.detail-line span.long-value {
+  overflow-wrap: break-word;
   hyphens: auto;
 }
 
 .contact .detail-line {
-  grid-template-columns: minmax(100px, 0.24fr) calc(13px * var(--scale)) minmax(0, 0.76fr);
+  grid-template-columns: minmax(86px, 0.21fr) calc(12px * var(--scale)) minmax(0, 0.79fr);
+}
+
+.contact .detail-line span {
+  overflow-wrap: anywhere;
 }
 
 .density-dense .biodata-overlay {
@@ -1017,11 +1026,11 @@ p {
 }
 
 .density-extra .detail-line {
-  grid-template-columns: minmax(92px, 0.3fr) calc(10px * var(--scale)) minmax(0, 0.7fr);
+  grid-template-columns: minmax(76px, 0.26fr) calc(10px * var(--scale)) minmax(0, 0.74fr);
 }
 
 .density-extra .contact .detail-line {
-  grid-template-columns: minmax(88px, 0.22fr) calc(10px * var(--scale)) minmax(0, 0.78fr);
+  grid-template-columns: minmax(74px, 0.2fr) calc(10px * var(--scale)) minmax(0, 0.8fr);
 }
 
 .compact-preview .biodata-overlay {
@@ -1061,14 +1070,14 @@ p {
 }
 
 .compact-preview .detail-line {
-  grid-template-columns: minmax(42px, 0.39fr) 5px minmax(0, 0.61fr);
+  grid-template-columns: minmax(38px, 0.34fr) 5px minmax(0, 0.66fr);
   gap: 3px;
   font-size: calc(6px * var(--scale));
   line-height: 1.12;
 }
 
 .compact-preview .contact .detail-line {
-  grid-template-columns: minmax(42px, 0.31fr) 5px minmax(0, 0.69fr);
+  grid-template-columns: minmax(38px, 0.27fr) 5px minmax(0, 0.73fr);
 }
 
 @media (max-width: 980px) {
@@ -1192,6 +1201,22 @@ p {
     width: min(100%, calc(142px * var(--photo-scale)));
   }
 
+  .layout-peacock .personal-layout,
+  .layout-leaf .personal-layout,
+  .layout-sapphire .personal-layout,
+  .layout-lotus .personal-layout,
+  .layout-arch .personal-layout {
+    grid-template-columns: minmax(0, 1fr) calc(126px * var(--photo-scale));
+  }
+
+  .layout-peacock .photo-box,
+  .layout-leaf .photo-box,
+  .layout-sapphire .photo-box,
+  .layout-lotus .photo-box,
+  .layout-arch .photo-box {
+    width: 100%;
+  }
+
   .personal-layout {
     grid-template-columns: minmax(0, 1fr) minmax(112px, 34%);
     gap: calc(12px * var(--scale));
@@ -1199,10 +1224,10 @@ p {
 
   .detail-line {
     font-size: calc(13px * var(--scale));
-    grid-template-columns: minmax(72px, 0.38fr) calc(10px * var(--scale)) minmax(0, 0.62fr);
+    grid-template-columns: minmax(62px, 0.3fr) calc(10px * var(--scale)) minmax(0, 0.7fr);
   }
 
   .contact .detail-line {
-    grid-template-columns: minmax(72px, 0.3fr) calc(10px * var(--scale)) minmax(0, 0.7fr);
+    grid-template-columns: minmax(62px, 0.24fr) calc(10px * var(--scale)) minmax(0, 0.76fr);
   }
 }
